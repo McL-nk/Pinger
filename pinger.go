@@ -13,13 +13,13 @@ func ping(pinger types.Pinger, ip string, wg *sync.WaitGroup) {
 
 	defer wg.Done()
 
-	response, err := pinger.Ping(ip, 25565)
+	_, err := pinger.Ping(ip, 25565)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(response)
+	fmt.Println("finished pinging", ip)
 
 }
 
