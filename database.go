@@ -2,36 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/iverly/go-mcping/api/types"
 	"go.mongodb.org/mongo-driver/bson"
 
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func getServers() (results []Serverstruct) {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
-
-	var uri string
-	if uri = os.Getenv("MONGO_URI"); uri == "" {
-		log.Fatal("No MONGO_URI env var set")
-	}
-
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(uri))
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		if err = client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
+func getServers(client *mongo.Client) (results []Serverstruct) {
 
 	coll := client.Database("bamb").Collection("servers")
 
@@ -51,4 +32,30 @@ func getServers() (results []Serverstruct) {
 		log.Fatal(err)
 	}
 	return results
+}
+
+func updateServer(client *mongo.Client, server Serverstruct, result *types.PingResponse) {
+
+	coll := client.Database("bamb").Collection("servers")
+	var id = server.ID
+
+	filter := bson.D{{Key: "_id", Value: id}}
+	update := bson.D{}
+
+	if result.Protocol == -110 {
+
+		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: 0}, {Key: "max_players", Value: 0}, {Key: "online", Value: false}}}}
+
+	} else {
+
+		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: result.PlayerCount.Online}, {Key: "max_players", Value: result.PlayerCount.Max}, {Key: "online", Value: true}}}}
+
+	}
+
+	_, err := coll.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Update server for " + server.Ip)
+
 }
