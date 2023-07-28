@@ -8,7 +8,12 @@ type Serverstruct struct {
 	Version        string
 	Online         bool
 	Uptime         []interface{}
-	Player_numbers []interface{}
+	Player_numbers []PlayerNumbers
 	Max_players    int
 	Online_players int
+}
+
+type PlayerNumbers struct {
+	Online int
+	Time int
 }

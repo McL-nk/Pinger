@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"log"
 
@@ -42,13 +43,31 @@ func updateServer(client *mongo.Client, server Serverstruct, result *types.PingR
 	filter := bson.D{{Key: "_id", Value: id}}
 	update := bson.D{}
 
+	fmt.Println(server)
+
 	if result.Protocol == -110 {
 
-		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: 0}, {Key: "max_players", Value: 0}, {Key: "online", Value: false}}}}
+		if len(server.Player_numbers) >= 288 {
+			update = bson.D{{Key: "$pop", Value: bson.D{{Key: "player_numbers", Value: 1}}}}
+			_, err := coll.UpdateOne(context.TODO(), filter, update)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: 0}, {Key: "max_players", Value: 0}, {Key: "online", Value: false}}}, {Key: "$push", Value: bson.D{{Key: "player_numbers", Value: bson.D{{Key: "Online", Value: 0}, {Key: "Time", Value: time.Now().UnixMilli()}}}}}}
 
 	} else {
 
-		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: result.PlayerCount.Online}, {Key: "max_players", Value: result.PlayerCount.Max}, {Key: "online", Value: true}}}}
+		if len(server.Player_numbers) >= 288 {
+			update = bson.D{{Key: "$pop", Value: bson.D{{Key: "player_numbers", Value: 1}}}}
+			_, err := coll.UpdateOne(context.TODO(), filter, update)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		update = bson.D{{Key: "$set", Value: bson.D{{Key: "online_players", Value: result.PlayerCount.Online}, {Key: "max_players", Value: result.PlayerCount.Max}, {Key: "online", Value: true}}}, {Key: "$push", Value: bson.D{{Key: "player_numbers", Value: bson.D{{Key: "Online", Value: result.PlayerCount.Online}, {Key: "Time", Value: time.Now().UnixMilli()}}}}}}
 
 	}
 

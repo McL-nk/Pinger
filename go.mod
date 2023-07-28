@@ -1,4 +1,4 @@
-module mclink/pinger
+module github.com/McL-nk/Pinger
 
 go 1.20
 
