@@ -43,8 +43,6 @@ func updateServer(client *mongo.Client, server Serverstruct, result *types.PingR
 	filter := bson.D{{Key: "_id", Value: id}}
 	update := bson.D{}
 
-	fmt.Println(server)
-
 	if result.Protocol == -110 {
 
 		if len(server.Player_numbers) >= 288 {
