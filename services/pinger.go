@@ -1,8 +1,10 @@
-package main
+package services
 
 import (
 	"fmt"
 
+	"github.com/McL-nk/Pinger/database"
+	"github.com/McL-nk/Pinger/models"
 	"github.com/iverly/go-mcping/api/types"
 	"github.com/iverly/go-mcping/mcping"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,7 +12,8 @@ import (
 	"sync"
 )
 
-func ping(pinger types.Pinger, server Serverstruct, wg *sync.WaitGroup, client *mongo.Client) {
+func ping(server models.Serverstruct, wg *sync.WaitGroup, client *mongo.Client) {
+	pinger := mcping.NewPinger()
 
 	defer wg.Done()
 
@@ -26,23 +29,21 @@ func ping(pinger types.Pinger, server Serverstruct, wg *sync.WaitGroup, client *
 			Version:     "null",
 			Sample:      nil}
 
-		updateServer(client, server, &fallback)
+		database.UpdateServer(client, server, &fallback)
 		return
 	}
 
-	updateServer(client, server, result)
+	database.UpdateServer(client, server, result)
 }
 
-func beginPing(servers []Serverstruct, client *mongo.Client) {
+func BeginPing(servers []models.Serverstruct, client *mongo.Client) {
 	var wg sync.WaitGroup
-
-	pinger := mcping.NewPinger()
 
 	wg.Add(len(servers))
 
 	for _, server := range servers {
 
-		go ping(pinger, server, &wg, client)
+		go ping(server, &wg, client)
 	}
 
 	wg.Wait()
