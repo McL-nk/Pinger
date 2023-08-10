@@ -106,10 +106,14 @@ func updateChannel(client *mongo.Client, key string, document changeEvent) {
 		if e.Server.Status_channels.Players_online != 0 {
 			body := []byte(`{}`)
 			if document.FullDocument.Online == true {
-				body = []byte(`{"name": "👥 Players Online: 0"}`)
-			} else {
+
 				bod := fmt.Sprintf(`{"name": "👥 Players Online: %v"}`, document.FullDocument.Online_players)
 				body = []byte(bod)
+
+			} else {
+
+				body = []byte(`{"name": "👥 Players Online: 0"}`)
+
 			}
 
 			patchurl := fmt.Sprintf("https://discord.com/api/v10/channels/%d", e.Server.Status_channels.Players_online)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -42,6 +43,8 @@ func main() {
 
 	// Create cron scheduler
 	s := gocron.NewScheduler(time.UTC)
+
+	fmt.Println("Ready!")
 
 	//	Setup the cron job to ping the servers every 5 min
 	s.Every(5).Minutes().Do(func() {

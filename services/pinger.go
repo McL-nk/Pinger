@@ -2,6 +2,8 @@ package services
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/McL-nk/Pinger/database"
 	"github.com/McL-nk/Pinger/models"
@@ -17,9 +19,28 @@ func ping(server models.Serverstruct, wg *sync.WaitGroup, client *mongo.Client) 
 
 	defer wg.Done()
 
-	result, err := pinger.Ping(server.Ip, 25565)
+	port := strings.Split(server.Ip, ":")
+	ip := server.Ip
+	port2 := int64(0)
+	if len(port) > 1 {
+		ip = port[0]
+		port2, _ = strconv.ParseInt(port[1], 10, 0)
+	} else {
+		port2 = 0
+	}
+
+	portnum := 0
+	if port2 < 65536 && port2 > 0 {
+		portnum = int(port2)
+	} else {
+		portnum = 25565
+	}
+	fmt.Print("server ip for: ", server.Ip)
+	fmt.Println(" ", uint16(portnum))
+	result, err := pinger.Ping(ip, uint16(portnum))
 
 	if err != nil {
+
 		fmt.Printf("server is offline")
 		var fallback = types.PingResponse{Latency: 0,
 			PlayerCount: types.PlayerCount{Max: 0, Online: 0},
