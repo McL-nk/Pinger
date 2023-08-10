@@ -35,8 +35,7 @@ func ping(server models.Serverstruct, wg *sync.WaitGroup, client *mongo.Client) 
 	} else {
 		portnum = 25565
 	}
-	fmt.Print("server ip for: ", server.Ip)
-	fmt.Println(" ", uint16(portnum))
+
 	result, err := pinger.Ping(ip, uint16(portnum))
 
 	if err != nil {
