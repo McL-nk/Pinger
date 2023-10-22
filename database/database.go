@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"log"
-
 	"github.com/McL-nk/Pinger/models"
 
 	"github.com/iverly/go-mcping/api/types"
@@ -21,18 +19,18 @@ func GetServers(client *mongo.Client) (results []models.Serverstruct) {
 
 	cursor, err := coll.Find(context.TODO(), bson.D{})
 	if err != nil {
-		panic(err)
+		fmt.Print("Error: ", err)
 	}
 
 	for cursor.Next(context.TODO()) {
 		var result models.Serverstruct
 		if err := cursor.Decode(&result); err != nil {
-			log.Fatal(err)
+			fmt.Print("Error: ", err)
 		}
 		results = append(results, result)
 	}
 	if err := cursor.Err(); err != nil {
-		log.Fatal(err)
+		fmt.Print("Error: ", err)
 	}
 	return results
 }
@@ -66,7 +64,7 @@ func UpdateServer(client *mongo.Client, server models.Serverstruct, result *type
 
 	_, err := coll.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
-		panic(err)
+		fmt.Print("Error: ", err)
 	}
 
 	fmt.Println("Update server for " + server.Ip)
@@ -83,21 +81,21 @@ func GetGuilds(client *mongo.Client, key string) (results []models.Guildstruct) 
 
 	if err != nil {
 
-		panic(err)
+		fmt.Print("Error: ", err)
 	}
 
 	for cursor.Next(context.TODO()) {
 		var result models.Guildstruct
 
 		if err := cursor.Decode(&result); err != nil {
-			log.Fatal(err)
+			fmt.Print("Error: ", err)
 		}
 
 		results = append(results, result)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Fatal(err)
+		fmt.Print("Error: ", err)
 	}
 
 	return results
